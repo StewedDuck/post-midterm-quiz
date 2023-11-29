@@ -3,6 +3,12 @@ import csv, os
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
+movies = []
+with open(os.path.join(__location__, 'movies.csv')) as f:
+    rows = csv.DictReader(f)
+    for r in rows:
+        movies.append(dict(r))
+
 class DB:
     def __init__(self):
         self.database = []
@@ -99,4 +105,28 @@ class Table:
 
     def __str__(self):
         return self.table_name + ':' + str(self.table)
+
+    def insert_row(self, dict):
+        
+        '''
+        This method inserts a dictionary, dict, into a Table object, effectively adding a row to the Table.
+        '''
+
+
+table1 = Table("movies", movies)
+my_DB = DB()
+my_DB.insert(table1)
+my_table1 = my_DB.search("movies")
+
+my_table1_filtered = my_table1.filter(lambda x: 'Comedy' in x['Genre'])
+my_table1_filtered2 = my_table1.filter(lambda x: 'Drama' in x['Genre'])
+
+my_table1_selected = my_table1_filtered.select(['Worldwide Gross'])
+
+print(f"The average value of Worldwide Gross for Comedy movies \
+{my_table1_filtered.aggregate(lambda x: sum(x)/len(x), 'Worldwide Gross')}")
+print(f"The minimum Audience score % for Drama movies \
+{my_table1_filtered2.aggregate(lambda x: sum(x)/len(x), 'Audience score %')}")
+
+
 
